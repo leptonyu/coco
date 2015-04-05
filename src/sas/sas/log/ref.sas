@@ -15,6 +15,7 @@
 
             %if %index(&g_sdk_log_ref., |&&&_file_.|) %then
                 %do;
+
                     %if &sysver.<9.2 %then
                         %let g_sdk_log_ref=%sysfunc(compress(%sysfunc(tranwrd(&g_sdk_log_ref., 
                             |&&&_file_.|, |))));
@@ -48,7 +49,7 @@
 
                     %if %sysfunc(filename(name, &&&_file_.)) %then
                         %do;
-                            %put error: 分配失败！;
+                            %put ERROR: Logref allocate failed!;
                             %let &_file_.=__err;
                         %end;
                     %else
@@ -58,6 +59,4 @@
                         %end;
                 %end;
         %end;
-
-    /*	%put error: &g_sdk_log_ref.;*/
 %mend;

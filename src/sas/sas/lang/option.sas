@@ -1,8 +1,7 @@
+%import(assertref);
+
 %macro option(_option_, mdfopns);
-    %if %length(&_option_.)=0 %then
-        %return;
-    %else %if not %symexist(&_option_.) %then
-        %return;
+    %assertref(&_option_.);
 
     %if %length(&&&_option_.) %then
         %do;

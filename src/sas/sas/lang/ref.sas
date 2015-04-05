@@ -1,9 +1,7 @@
+%import(assertref);
+
 %macro ref(_file_, clear);
-    %if not %symexist(&_file_.) %then
-        %do;
-            %put ERROR: Macro &_file_. not exists!;
-            %return;
-        %end;
+    %assertref(&_file_.);
 
     %if %length(&clear.) %then
         %do;

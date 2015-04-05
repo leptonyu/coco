@@ -15,7 +15,6 @@
     run;
 
     %option(__option__);
-
     %if %sysfunc(fexist(&__temp__.)) %then
         %do;
             %inc "%sysfunc(pathname(&__temp__.))";
