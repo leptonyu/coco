@@ -7,7 +7,7 @@
 		if did then do;
 			do i=1 to dnum(did);
 				name=scan(dread(did,i),1);
-				lst=compbl(trim(lst)||name);
+				lst=compbl(trim(lst)||' '||name);
 			end;
 			rc=dclose(did);
 			if compress("&_lst_.")^='' then call symput("&_lst_.",trim(lst));
