@@ -1,4 +1,4 @@
 %macro getpath();
-    %put Duplicated import;
+    %put This macro should never be executed!;
     %abort;
 %mend;

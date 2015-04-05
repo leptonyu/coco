@@ -1,5 +1,3 @@
-%inc "&_SASWS_./autoexec.sas";
-
 %import(sas_sec_cksum);
 
 %sas_sec_cksum(type=crc32);
@@ -41,5 +39,3 @@
 %sas_sec_cksum(type=not);
 %sas_sec_cksum(&g_src.sas/lang/import.saks,type=not);
 %sas_sec_cksum(&g_src.sas/lang/import.sas,type=not);
-
-%put NOTE: test OK;
