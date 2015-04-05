@@ -1,7 +1,7 @@
 %macro ref(_file_, clear);
     %if not %symexist(&_file_.) %then
         %do;
-            %put error: 宏变量&_file_.不存在!;
+            %put ERROR: Macro &_file_. not exists!;
             %return;
         %end;
 
@@ -10,7 +10,7 @@
 
             %if %length(&&&_file_.)=0 or not %symexist(g_ref) %then
                 %do;
-                    %put note: 没有需要删除的文件引用名;
+                    %put NOTE: No refence need to delete.;
                     %return;
                 %end;
 
@@ -41,7 +41,7 @@
 
                     %if %sysfunc(filename(name, , temp)) %then
                         %do;
-                            %put error: 分配失败！;
+                            %put ERROR: file allocate failed!;
                             %let &_file_.=__err;
                         %end;
                     %else
@@ -55,13 +55,13 @@
 
                     %if %sysfunc(fileref(&&&_file_.))<=0 %then
                         %do;
-                            %put warning: 文件已分配;
+                            %put WARNING: file has bean already allocated;
                             %return;
                         %end;
 
                     %if %sysfunc(filename(name, &&&_file_.)) %then
                         %do;
-                            %put error: 分配失败！;
+                            %put ERROR: file allocate failed!;
                             %let &_file_.=__err;
                         %end;
                     %else
