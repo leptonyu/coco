@@ -56,9 +56,10 @@ A *sas* library for *SAS University Edition* and *SAS Studio*.
 5. open bin/main.sas, write your own call code using coco.
 6. open bin/testCoco.sas and run to test coco works on your platform.
 
-### Source Folder of ***coco***
+### Source Folders of ***coco***
 ***coco*** can have 10 source folders. The main source folder used by ***coco*** source is defined in global macro variable g_src. Developers should not put your own sources in this folder.
 
+***coco*** use 9 global macro variables named from g_src_1 to g_src_9 to define the extended source folder. if you can add your own source folder in to ***coco*** source path by set any of these 9 global macro variable. 
 
 
 ### Core ***coco*** Macro
