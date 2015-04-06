@@ -6,32 +6,21 @@ this macro can smart import sas macro files.
 @version 1.0
 */
 %macro import(name);
-    %let name=%lowcase(&name.);
+    %let name=%canonicalname(&name.);
 
     %if %length(&name.)=0 %then
         %return;
+    %* This step use to collect depedencies;
+
+    %if %symexist(import_names) %then
+        %do;
+          %let import_names=&import_names. &name.;
+        %end;
 
     %if %sysmacexec(&name.) %then
         %return;
-
-    /* step 2 prepare sub macros.*/
-    %local imports i imps;
-    %let imports=canonicalname getpath;
-    %let i=1;
-    %let imps=%scan(&imports., &i., %str( ));
-
-    %do %while(%sysfunc(compress("&imps."))^="");
-        %if not %sysmacexist(&imps.) %then
-            %do;
-                %inc "&g_src.sas&g_.lang&g_.&imps..sas";
-            %end;
-        %let i=%eval(&i.+1);
-        %let imps=%scan(&imports., &i., %str( ));
-    %end;
-
-    /*step 3 format the name */
-    %let name=%canonicalname(&name.);
-    %local  path;
+        
+    %local path;
     %let path=%getpath(&name.);
 
     %if %length(&path.) %then
@@ -40,9 +29,7 @@ this macro can smart import sas macro files.
         %end;
     %else
         %do;
-
-            /* throw exception*/
-    %put ERROR: MARCO &name. not found!;
+            %put ERROR: MARCO &name. not found!;
             %abort;
         %end;
 %mend;

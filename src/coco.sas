@@ -1,13 +1,48 @@
-%let g_=/;
-%let g_src=&_SASWS_./src/core/;
-%let g_src_1=&_SASWS_./src/main/;
-%*let g_src_2=;
-%* ...;
-%*let g_src_9=;
+%macro __init_coco__;
+    %if %symexist(g_src) %then
+        %return;
 
-%let g_handler_f=sas_file_;
-%let g_handler_log=sas_log_;
-%let g_handler_l=sas_log_;
-%inc "&g_src.sas/lang/import.sas";
+    %if &sysver. < 9.4 %then
+        %do;
+            %put ERROR: SAS &sysver. not supported by coco.;
+            %abort;
+        %end;
+    %global g_ g_src;
+    %* create global path;
+    %let g_=/;
+    %let g_src=&_SASWS_.&g_.src&g_.core&g_.;
+    ;
+    %local srclang;
+    %let srclang=&g_src.sas&g_.lang&g_.;
+    ;
+    %global g_src_1;
+    %let g_src_1=&_SASWS_./src/main/;
+    %*let g_src_2=;
+    %* ...;
+    %*let g_src_9=;
+    ;
+    %* create handler pointer;
+    %global g_handler_f;
+    %let g_handler_f=sas_file_;
+    %global g_handler_log;
+    %let g_handler_log=sas_log_;
+    %global g_handler_l;
+    %let g_handler_l=sas_log_;
+    %global g_handler_sec;
+    %let g_handler_sec=sas_sec_;
+    %global g_handler_str;
+    %let g_handler_str=sas_str_;
+    %* import fundamental macros.;
+    ;
+    %inc "&srclang.nvalid.sas";
+    %inc "&srclang.canonicalname.sas";
+    %inc "&srclang.getpath.sas";
+    %inc "&srclang.import.sas";
+%mend;
+
+%__init_coco__;
+%sysmacdelete __init_coco__;
+%* using import to import core macros.;
+%* This part canbe modified;
 %import(sh);
 %import(test);

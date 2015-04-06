@@ -19,7 +19,10 @@ format macro name
                     %let handler=&&g_handler_&handler.;
                 %end;
             %else
-                %return;
+                %do;
+                    %put ERROR: Handler<&handler.> not found!;
+                    %return;
+                %end;
             %let name=&handler.&name.;
         %end;
     %local saslang;
@@ -32,5 +35,10 @@ format macro name
             %if %index(&name., _)>0 %then
                 %let name=&saslang.&name.;
         %end;
-    &name.
+    %* check if name is valid.;
+
+    %if %nvalid(&name.) %then
+        %do;
+            &name.
+    %end;
 %mend;
