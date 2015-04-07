@@ -5,5 +5,5 @@
             %put _LOCAL_;
             %abort;
         %end;
-    %put NOTE: <& expected.> NOT equals <&actual.>!;
+    %put NOTE: <&expected.> NOT equals <&actual.>!;
 %mend;

@@ -49,7 +49,3 @@
 %exit:
     %option(option);
 %mend;
-
-;
-;
-;

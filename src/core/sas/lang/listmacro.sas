@@ -1,8 +1,9 @@
 %import(ismacroref);
+%import(sort);
 %import(sas_file_list);
 
-%macro listmacro(_lst_, id=0);
-    %local i ;
+%macro listmacro(_lst_, id=);
+    %local i;
 
     %if "&id."="" %then
         %do;
@@ -10,16 +11,15 @@
             %do i=0 %to 9;
                 %listmacro(&_lst_., id=&i.);
             %end;
+
+            %if %ismacroref(&_lst_.) %then
+                %do;
+                    %let &_lst_.=%sort(&&&_lst_.., uniq=1);
+                %end;
             %return;
         %end;
     %local flag;
-    %let flag=0;
-    %if not %ismacroref(&_lst_.) %then
-        %do;
-            %let flag=1;
-            %local lst;
-            %let _lst_=lst;
-        %end;
+    %let flag=%ismacroref(&_lst_.);
     %local src;
 
     %if "&id."="0" %then
@@ -43,7 +43,6 @@
     %let file=%scan(&files., &i., %str( ));
 
     %do %while("&file."^="");
-
         %if not %hassuffix(&file., _test.sas) and "&file."^=".sas" %then
             %do;
                 %let file=%substr(&file., 1, %length(&file.)-4);
@@ -51,15 +50,23 @@
 
                 %if &flag. %then
                     %do;
-                        %put &c. &file.;
-                        %let c=%eval(&c.+1);
+                        %let &_lst_.=&&&_lst_. &file.;
                     %end;
                 %else
                     %do;
-                        %let &_lst_.=&&&_lst_. &file.;
+                        %put &c. &file.;
+                        %let c=%eval(&c.+1);
                     %end;
             %end;
         %let i=%eval(&i.+1);
         %let file=%scan(&files., &i., %str( ));
     %end;
+
+    %if &flag. %then
+        %do;
+            %let &_lst_.=%sort(&&&_lst_.., uniq=1);
+        %end;
 %mend;
+
+;
+;;

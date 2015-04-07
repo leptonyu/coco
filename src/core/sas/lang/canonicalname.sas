@@ -25,30 +25,26 @@ And then it returns sas_log_start.
     %if "%sysfunc(count(&name., .))"="1" %then
         %do;
             %local len;
-            %let len=%index(&name.,.);
+            %let len=%index(&name., .);
+
             %if &len.=1 or &len.=%length(&name.) %then
+                %return;
+            %local handler;
+            %let handler=%scan(&name., 1, .);
+            %let name=%scan(&name., 2, .);
+
+            %if %length(&handler.)=0 %then
+                %let handler=%str();
+            %else %if %symexist(g_handler_&handler.) %then
                 %do;
-                  %return;
+                    %let handler=&&g_handler_&handler.;
                 %end;
             %else
                 %do;
-                    %local handler;
-                    %let handler=%scan(&name., 1, .);
-                    %let name=%scan(&name., 2, .);
-
-                    %if %length(&handler.)=0 %then
-                        %let handler=%str();
-                    %else %if %symexist(g_handler_&handler.) %then
-                        %do;
-                            %let handler=&&g_handler_&handler.;
-                        %end;
-                    %else
-                        %do;
-                            %put WARNING: Handler<&handler.> not found!;
-                            %return;
-                        %end;
-                    %let name=&handler.&name.;
+                    %put WARNING: Handler<&handler.> not found!;
+                    %return;
                 %end;
+            %let name=&handler.&name.;
         %end;
     %local saslang;
     %let saslang=sas_lang_;
