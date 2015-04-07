@@ -2,6 +2,8 @@ coco
 ===========
 A *sas* library for *SAS University Edition* and *SAS Studio*. 
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/leptonyu/coco/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 ## Overview
 ***coco*** provides many sas macros to support a lot of features, such as code organization, smart import sas macros, test suites for test macros, source code folder management. To use coco, you should follow some principals.
 
@@ -77,4 +79,4 @@ It's a ***coco*** script interpreter runner. It can be used to simplify the code
 ### Author
 Daniel YU (http://icymint.me)
  
-  
+ 
