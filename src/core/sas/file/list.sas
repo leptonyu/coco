@@ -1,28 +1,55 @@
-%macro sas_file_list(dir, _lst_);
-    options nonotes nosource;
+%import(hassuffix);
 
-    data _null_;
-        length lst $32767 name $128;
-        rc=filename("_dir_", symget('dir'));
-        did=dopen("_dir_");
-        lst='';
+%macro sas_file_list(dir, _lst_, suffix=);
+    %local option flag;
+    %option(option);
+    %let flag=0;
+    %if not %ismacroref(&_lst_.) %then
+        %do;
+            %local lst;
+            %let _lst_=lst;
+            %let flag=1;
+        %end;
 
-        if did then
-            do;
+    %macro _sas_file_list(d, path);
+        %local fref;
+        %let fref=&d.&path.;
+        %ref(fref);
 
-                do i=1 to dnum(did);
-                    name=scan(dread(did, i), 1);
-                    lst=compbl(trim(lst)||' '||name);
-                end;
-                rc=dclose(did);
+        %if "__err"="&fref." %then
+            %return;
+        %local did;
+        %let did=%sysfunc(dopen(&fref.));
 
-                if compress("&_lst_.")^='' then
-                    call symput("&_lst_.", trim(lst));
-            end;
-        else
-            put "ERROR: Directory &dir. not exist!";
-        rc=filename("_dir_");
-    run;
+        %if &did.=0 %then
+            %goto _exit;
+        %local i rc entry;
 
-    options notes source;
+        %do i=1 %to %sysfunc(dnum(&did.));
+            %let entry=%sysfunc(dread(&did., &i.));
+
+            %if %hassuffix(&entry., &suffix.) %then
+                %do;
+                    %let &_lst_.=&&&_lst_.. &path.&entry.;
+                %end;
+            %_sas_file_list(&d., &path.&entry.&g_.);
+        %end;
+        %let rc=%sysfunc(dclose(&did.));
+%_exit:
+        %ref(fref, clear);
+    %mend;
+
+    %_sas_file_list(&dir., );
+    %sysmacdelete _sas_file_list;
+
+    %if &flag. %then
+        %do;
+            %put &&&_lst_.;
+        %end;
+%exit:
+    %option(option);
 %mend;
+
+;
+;
+;

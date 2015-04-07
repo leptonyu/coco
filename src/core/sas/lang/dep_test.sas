@@ -10,3 +10,4 @@
 %global hello;
 %dep(dep,hello);
 %asserteq(dep,&hello.);
+%symdel hello;

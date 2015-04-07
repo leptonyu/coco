@@ -2,11 +2,14 @@
 %let g_src_9=&_SASWS_./src/test/;
 
 %test(import);
+
 %test(canonicalname);
 %test(getpath);
 %test(dep);
 %test(sec.cksum);
 %test(nvalid);
-
+%test(test);
+%test(hasprefix);
+%test(hassuffix);
 
 

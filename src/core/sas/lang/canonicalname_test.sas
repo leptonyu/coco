@@ -1,6 +1,13 @@
 %asserteq(,%canonicalname());
 %asserteq(,%canonicalname( ));
-%asserteq(namename,%canonicalname(name name));
+%asserteq(,%canonicalname(.));
+%asserteq(,%canonicalname(..));
+%asserteq(,%canonicalname(.bb.));
+%asserteq(,%canonicalname(l.));
+%asserteq(,%canonicalname(.l));
+%asserteq(,%canonicalname(name name));
+
+
 %asserteq(xxx,%canonicalname(XXX));
 %asserteq(xx,%canonicalname(sas_lang_xx));
 %asserteq(abc,%canonicalname(SAS_LANG_ABC));

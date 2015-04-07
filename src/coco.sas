@@ -1,6 +1,4 @@
 %macro __init_coco__;
-    %if %symexist(g_src) %then
-        %return;
 
     %if &sysver. < 9.4 %then
         %do;
@@ -15,11 +13,11 @@
     %local srclang;
     %let srclang=&g_src.sas&g_.lang&g_.;
     ;
-    %global g_src_1;
-    %let g_src_1=&_SASWS_./src/main/;
-    %*let g_src_2=;
+    %*let g_src_1=;
     %* ...;
-    %*let g_src_9=;
+    %*let g_src_8=;
+    %global g_src_9;
+    %let g_src_9=&_SASWS_./src/test/;
     ;
     %* create handler pointer;
     %global g_handler_f;

@@ -10,20 +10,20 @@
 
     %if %length(&filename.)=0 %then
         %do;
-            %put ERROR: Empty parameter!;
+            %put WARNING: Empty parameter!;
             %goto error;
         %end;
 
     %if not %sysfunc(fileexist(&filename.)) %then
         %do;
-            %put ERROR: File &file. not exist!;
+            %put WARNING: File &file. not exist!;
             %goto error;
         %end;
     %ref(filename);
 
     %if "__err"="&filename." %then
         %do;
-            %put ERROR: Cannot allocate file &file.!;
+            %put WARNING: Cannot allocate file &file.!;
             %goto error;
         %end;
 
@@ -1713,7 +1713,7 @@
         %end;
     %else
         %do;
-            %put ERROR: Check sum type<&type.> not supported;
+            %put WARNING: Check sum type<&type.> not supported;
             %goto error;
         %end;
 
