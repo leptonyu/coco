@@ -4,4 +4,9 @@
 %test(import);
 %test(canonicalname);
 %test(getpath);
+%test(dep);
+%test(sec.cksum);
+%test(nvalid);
+
+
 

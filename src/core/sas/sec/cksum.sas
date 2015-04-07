@@ -1,5 +1,6 @@
 %import(option);
 %import(ref);
+%import(ismacroref);
 
 %macro sas_sec_cksum(file, _cksum_, type=md5);
     %local option;
@@ -26,12 +27,7 @@
             %goto error;
         %end;
 
-    %if %sysfunc(compress("&_cksum_."))="" %then
-        %do;
-            %local sum;
-            %let _cksum_=sum;
-        %end;
-    %else %if not %symexist(&_cksum_.) %then
+    %if not %ismacroref(&_cksum_.) %then
         %do;
             %local sum;
             %let _cksum_=sum;
@@ -1717,7 +1713,7 @@
         %end;
     %else
         %do;
-            %put ERROR: Check sum type &type. not supported;
+            %put ERROR: Check sum type<&type.> not supported;
             %goto error;
         %end;
 
@@ -1725,11 +1721,8 @@
         %do;
             %put File &file. has &type.=&sum.;
         %end;
-    %ref(filename, clear);
-    %option(option);
-    %return;
 %error:
     %ref(filename, clear);
     %option(option);
-    %abort;
+    %return;
 %mend;

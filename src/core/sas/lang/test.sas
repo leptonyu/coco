@@ -3,7 +3,6 @@
 %import(assertne);
 %import(assertref);
 
-
 %macro test(name);
     %if %length(&name.)=0 %then
         %do;

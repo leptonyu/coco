@@ -2,5 +2,3 @@
 %sh(
 hhhh
 );
-
-%test(import);
