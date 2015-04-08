@@ -1,4 +1,4 @@
-%macro sas_str_addpost(string, postfix, sep=, sep2);
+%macro sas_str_addpost(string, postfix, sep=, sep2=);
     %if %length(&sep.)=0 %then
         %let sep=%str( );
 

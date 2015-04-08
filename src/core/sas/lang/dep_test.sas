@@ -6,8 +6,9 @@
 
 %dep(sh);
 %dep(f.mkdir);
+%dep(canonicalname);
 
 %global hello;
-%dep(dep,hello);
-%asserteq(dep,&hello.);
+%dep(nvalid,hello);
+%asserteq(,&hello.);
 %symdel hello;

@@ -13,6 +13,8 @@
             %local check;
             %let _check_=check;
         %end;
+    %local __timestart__;
+    %let __timestart__=%sysfunc(time());
 
     %if "%lowcase(&name.)"="_all_" %then
         %do;
@@ -23,25 +25,17 @@
             %let item=%scan(&allmacro., &i., %str( ));
 
             %do %while("&item."^="");
+                %local re;
+                %test(&item., re);
 
-                %if not %hasprefix(&item., test) %then
+                %if "&&&_check_."^="0" %then
                     %do;
-                        %local re;
-                        %test(&item., re);
-
-                        %if "&&&_check_."^="0" %then
-                            %do;
-                                %let &_check_.=&re.;
-                            %end;
-                    %end;
-                %else
-                    %do;
-                        %put "&item.";
+                        %let &_check_.=&re.;
                     %end;
                 %let i=%eval(&i.+1);
                 %let item=%scan(&allmacro., &i., %str( ));
             %end;
-            %return;
+            %goto exit;
         %end;
     %let &_check_.=0;
     %local sname;
@@ -69,16 +63,8 @@
             %put WARNING: MACRO<&name.> has not test!;
             %return;
         %end;
-    %local __timestart__;
-    %let __timestart__=%sysfunc(time());
     %inc "&file.";
     %let &_check_.=1;
-    %put NOTE: Test MACRO<&name.> OK, 
-        cost %sysevalf(%sysfunc(time())-&__timestart__.)s.;
+%exit:
+    %put NOTE: Test MACRO<&name.> OK%str(,) cost %sysevalf(%sysfunc(time())-&__timestart__.)s.;
 %mend;
-
-;
-;
-;
-;
-;

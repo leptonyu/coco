@@ -14,10 +14,7 @@ And then it returns sas_log_start.
 @since 2015-4-5
 */
 %macro canonicalname(name);
-    %if %length(&name.) %then
-        %do;
-            %let name=%qcmpres(%lowcase(&name.));
-        %end;
+    %let name=%qcmpres(%lowcase(&name.));
 
     %if %length(&name.)=0 %then
         %return;
