@@ -29,6 +29,7 @@
 
     /* find source file in extended src path.*/ 
 
+    %local i;
     %if %index(&filename., sas)^=1 %then
         %do i=1 %to 9;
             %if %symexist(g_src_&i.) %then
