@@ -1,5 +1,7 @@
 %import(ismacroref);
 %import(sort);
+%import(hassuffix);
+%import(canonicalname);
 %import(sas_file_list);
 
 %macro listmacro(_lst_, id=);

@@ -1,9 +1,9 @@
 %import(sas_log_ref);
-%import(sas_log_options);
+%import(sas_log_option);
 
 %macro sas_log_end();
     %local opns1 opns2;
-    %sas_log_options(opns1, opns2);
+    %sas_log_option(opns1, opns2);
     %put 从现在开始恢复默认日志输出!;
 
     proc printto ;

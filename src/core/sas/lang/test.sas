@@ -1,15 +1,47 @@
 %import(ismacroref);
 %import(canonicalname);
 %import(getpath);
+%import(listmacro);
 %import(asserteq);
 %import(assertne);
 %import(assertref);
+%import(hasprefix);
 
 %macro test(name, _check_);
     %if not %ismacroref(&_check_.) %then
         %do;
             %local check;
             %let _check_=check;
+        %end;
+
+    %if "%lowcase(&name.)"="_all_" %then
+        %do;
+            %local allmacro;
+            %listmacro(allmacro);
+            %local i item;
+            %let i=1;
+            %let item=%scan(&allmacro., &i., %str( ));
+
+            %do %while("&item."^="");
+
+                %if not %hasprefix(&item., test) %then
+                    %do;
+                        %local re;
+                        %test(&item., re);
+
+                        %if "&&&_check_."^="0" %then
+                            %do;
+                                %let &_check_.=&re.;
+                            %end;
+                    %end;
+                %else
+                    %do;
+                        %put "&item.";
+                    %end;
+                %let i=%eval(&i.+1);
+                %let item=%scan(&allmacro., &i., %str( ));
+            %end;
+            %return;
         %end;
     %let &_check_.=0;
     %local sname;
@@ -18,13 +50,12 @@
 
     %if %length(&name.)=0 %then
         %do;
-            %put WARNING: <&sname.> is invalid, please specify a valid macro name;
+            %put WARNING: <&sname.> is invalid, 
+                please specify a valid macro name;
             %return;
         %end;
     %put NOTE: Testing MACRO<&name.>...;
-    
     %import(&name.);
-    
     %local file;
     %let file=%getpath(&name., sufix=_test);
 
@@ -42,5 +73,12 @@
     %let __timestart__=%sysfunc(time());
     %inc "&file.";
     %let &_check_.=1;
-    %put NOTE: Test MACRO<&name.> OK, cost %sysevalf(%sysfunc(time())-&__timestart__.)s.;
+    %put NOTE: Test MACRO<&name.> OK, 
+        cost %sysevalf(%sysfunc(time())-&__timestart__.)s.;
 %mend;
+
+;
+;
+;
+;
+;

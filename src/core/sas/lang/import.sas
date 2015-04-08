@@ -14,12 +14,18 @@ this macro can smart import sas macro files.
 
     %if %symexist(import_names) %then
         %do;
-          %let import_names=&import_names. &name.;
+            %if %index(&import_names., |&name.|) %then
+                %return;
+            %let import_names=&import_names.&name.|;
+        %end;
+    %else
+        %do;
+            %local import_names;
+            %let import_names=|&name.|;
         %end;
 
     %if %sysmacexec(&name.) %then
         %return;
-        
     %local path;
     %let path=%getpath(&name.);
 

@@ -1,9 +1,9 @@
 %import(sas_log_ref);
-%import(sas_log_options);
+%import(sas_log_option);
 
 %macro sas_log_tofile(file, content, type);
     %local opns1 opns2;
-    %sas_log_options(opns1, opns2);
+    %sas_log_option(opns1, opns2);
     %local logfile;
     %let logfile=&file.;
     %sas_log_ref(file);
