@@ -93,15 +93,3 @@ cont:
 %exit:
     %option(option);
 %mend;
-
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;
-;;;
