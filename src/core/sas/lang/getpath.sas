@@ -1,5 +1,6 @@
-%macro getpath(filename, sufix=);
+%macro getpath(filename, sufix=, srcid=);
     %let filename=%canonicalname(&filename.);
+
     %if %length(&filename.)=0 %then
         %return;
 
@@ -20,28 +21,46 @@
         %end;
     %let path=&g_src.&filename..sas;
 
-    %if %sysfunc(fileexist(&path.)) %then
+    %if "&srcid."="" %then
+        %do;
+
+            %if %sysfunc(fileexist(&path.)) %then
+                %do;
+                    %let path=&g_src.&filename.&sufix..sas;
+                    &path.
+            %return;
+                %end;
+
+            /* find source file in extended src path.*/ 
+
+    %local i;
+
+            %if %index(&filename., sas)^=1 %then
+                %do i=1 %to 9;
+
+                    %if %symexist(g_src_&i.) %then
+                        %do;
+                            %let path=&&g_src_&i.;
+                            %let path=&path.&filename.;
+
+                            %if %sysfunc(fileexist(&path..sas)) %then
+                                %do;
+                                    %let path=&path.&sufix..sas;
+                                    &path.
+                            %return;
+                                %end;
+                        %end;
+                %end;
+        %end;
+    %else %if "&srcid."="0" %then
         %do;
             %let path=&g_src.&filename.&sufix..sas;
             &path.
-            %return;
         %end;
-
-    /* find source file in extended src path.*/ 
-
-    %local i;
-    %if %index(&filename., sas)^=1 %then
-        %do i=1 %to 9;
-            %if %symexist(g_src_&i.) %then
-                %do;
-                    %let path=&&g_src_&i.;
-                    %let path=&path.&filename.;
-                    %if %sysfunc(fileexist(&path..sas)) %then
-                        %do;
-                            %let path=&path.&sufix..sas;
-                            &path.
-                            %return;
-                        %end;
-                %end;
+    %else %if %symexist(g_src_&srcid.) %then
+        %do;
+            %let path=&&g_src_&srcid.;
+            %let path=&path.&filename.&sufix..sas;
+            &path.
         %end;
 %mend;
