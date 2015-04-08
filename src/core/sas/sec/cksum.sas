@@ -456,7 +456,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_sha1_');
                 sha1=put(ha, hex8.)||put(hb, hex8.)||put(hc, hex8.)||put(hd, 
                     hex8.)||put(he, hex8.);
                 call symput("&_cksum_.", sha1);
@@ -639,7 +638,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_sha224_');
                 sha224=put(ha, hex8.)||put(hb, hex8.)||put(hc, hex8.)||put(hd, 
                     hex8.)||put(he, hex8.)||put(hf, hex8.)||put(hg, hex8.);
                 call symput("&_cksum_.", sha224);
@@ -822,7 +820,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_sha256_');
                 sha256=put(ha, hex8.)||put(hb, hex8.)||put(hc, hex8.)||put(hd, 
                     hex8.)||put(he, hex8.)||put(hf, hex8.)||put(hg, 
                     hex8.)||put(hh, hex8.);
@@ -1011,7 +1008,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_rmd128_');
                 rmd128=put(left(reverse(input(put(ha, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hb, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hc, hex8.), $hex8.))), 
@@ -1219,7 +1215,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_rmd160_');
                 rmd160=put(left(reverse(input(put(ha, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hb, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hc, hex8.), $hex8.))), 
@@ -1443,7 +1438,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_rmd256_');
                 rmd256=put(left(reverse(input(put(ha, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hb, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hc, hex8.), $hex8.))), 
@@ -1695,7 +1689,6 @@
                     end;
                 end;
                 rc=fclose(iid);
-                rc=filename('_rmd320_');
                 rmd320=put(left(reverse(input(put(ha, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hb, hex8.), $hex8.))), 
                     $hex8.) ||put(left(reverse(input(put(hc, hex8.), $hex8.))), 
