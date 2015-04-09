@@ -1,2 +1,4 @@
 %inc "&_SASWS_./autoexec.sas";
-%test(newmacro);
+%import(newmacro);
+%newmacro(assertref,srcid=0);
+%test(assertref);

@@ -1,10 +1,12 @@
-/**
-use as the fundamental macro of this lib.
-this macro can smart import sas macro files.
-@author Daniel YU
-@since 2015-03-05
-@version 1.0
-*/
+/*************************************************
+* Copyright(c) 2015 coco, All Rights Reserved.
+* @author  Daniel YU
+* @since   2015-04-09 09:32:34
+* @version 1.0
+* use as the fundamental macro of this lib.
+* this macro can smart import sas macro files.
+*************************************************/
+
 %macro import(name);
     %let name=%canonicalname(&name.);
 

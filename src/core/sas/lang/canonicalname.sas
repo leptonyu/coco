@@ -1,4 +1,9 @@
-/**
+/*************************************************
+* Copyright(c) 2015 coco, All Rights Reserved.
+* @author  Daniel YU
+* @since   2015-04-09 09:32:34
+* @version 1.0
+* 
 Get the canonical name of the given name.It has a mechanism to
 simply the macro name. Global macro variables such as g_handler_xxx
 used to be simplify the macro name.
@@ -10,9 +15,8 @@ to check whether the global macro variable g_handler_l exists, if not,
 it will return nothing, which means transfer failed, or it will return
 the value of g_handler_l contact the rest of l.start which is start.
 And then it returns sas_log_start.
-@author Daniel YU
-@since 2015-4-5
-*/
+*************************************************/
+
 %macro canonicalname(name);
     %let name=%qcmpres(%lowcase(&name.));
 

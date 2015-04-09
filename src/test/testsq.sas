@@ -6,8 +6,9 @@
 * 
 *************************************************/
 
-%macro sas_str_addmid(string, midfix, sep);
-    %if %length(&sep.)=0 %then
-        %let sep=%str( );
-    %sysfunc(tranwrd(%sysfunc(compbl(&string.)), %str(&sep.), %str(&midfix.)))
+%macro testsq(num=100000);
+    %local i;
+    %do i=1 %to &num.;
+        %if "&i"="" %then %put &i.;
+    %end;
 %mend;
