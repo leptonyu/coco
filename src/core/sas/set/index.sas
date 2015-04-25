@@ -8,22 +8,17 @@
 
 %import(sas_set_name);
 %import(sas_lib_name);
-%import(ismacroref);
+%import(validate);
 
 %macro sas_set_index(fin, _index_);
-    %local lib name;
+    %if not %validate(&_index_.,fin lib name) %then %return;
+    
     %let name=%sas_set_name(&fin.);
 
     %if "&name."="" %then
         %do;
             %put WARN: Dataset<&fin.> is not valid!;
             %return;
-        %end;
-
-    %if not %ismacroref(&_index_.) %then
-        %do;
-            %local index;
-            %let _index_=index;
         %end;
     %let lib=%sas_lib_name(&fin.);
 
@@ -36,5 +31,4 @@
             quit;
 
         %end;
-    %put NOTE: Dataset<&lib..&name.> index is &&&_index_.;
 %mend;
