@@ -42,6 +42,7 @@
         new=1;
         id=0;
         mid=0;
+        bigstatus=0;
         starttoken=prxparse('/[({]/');
         stoptoken=prxparse('/[)};]/');
         start=1;
@@ -50,6 +51,7 @@
         last=-1;
 
         do while(pos>0);
+
             if sq=0 and mq=0 and last^=-1 and pos>last then
                 do;
                     ig=substr(buff, last, pos-last);
@@ -75,9 +77,11 @@
                     com=1;
                     goto cont;
                 end;
+
             if item='"' and mq=0 then
                 do;
                     sq=ifn(sq, 0, 1);
+
                     if sq=1 then
                         do;
                             mqstart=pos;
@@ -93,6 +97,7 @@
             if item="'" and sq=0 then
                 do;
                     mq=ifn(mq, 0, 1);
+
                     if mq=1 then
                         do;
                             sqstart=pos;
@@ -119,6 +124,9 @@ word:
                 do;
                     id+1;
                     stack[id]=item;
+
+                    if item='{' then
+                        bigstatus+1;
                     goto method;
                 end;
             else if prxmatch(stoptoken, trim(item)) then
@@ -128,6 +136,7 @@ word:
                         do;
                             stack[id]='';
                             id=id-1;
+                            bigstatusb=bigstatus-1;
                         end;
                     else if compress(stack[id]||item)='()' then
                         do;
@@ -175,7 +184,15 @@ method:
                                     goto stop;
                                 end;
                             put '%import(' name +(-1) ');';
-                            put '%' name +(-1) '(' @;
+
+                            if bigstatus then
+                                do;
+                                    put '%let g__=%' name +(-1) '(' @;
+                                end;
+                            else
+                                do;
+                                    put '%' name +(-1) '(' @;
+                                end;
 
                             do i=2 to mid;
 
@@ -184,6 +201,11 @@ method:
                                 put method[i] +(-1) @;
                             end;
                             put ');';
+
+                            if bigstatus then
+                                do;
+                                    put '%put &g__.;';
+                                end;
 endmethod:
                         end;
                     else if prxmatch(lettoken, trim(method[1])) then
@@ -197,9 +219,6 @@ endmethod:
                         end;
                     mid=0;
                     goto cont;
-                end;
-            else
-                do;
                 end;
             mid+1;
 
@@ -221,8 +240,13 @@ endmethod:
                 end;
             else
                 do;
-                    item=dequote(tranwrd(item, '$', '&g__'));
-                    item=prxchange('s/(["'||"'"||'])/%str(%$1)/',-1,item);
+
+                    if index(item, '"')=1 then
+                        do;
+                            item=tranwrd(item, '$', '&g__');
+                        end;
+                    item=dequote(item);
+                    item=prxchange('s/(["'||"'"||'])/%str(%$1)/', -1, item);
                 end;
             method[mid]=item;
 cont:
