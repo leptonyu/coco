@@ -5,6 +5,7 @@
 
 
 %help();
+%help(xxx);
 
 %help(help);
 %help(set.vars);

@@ -43,6 +43,10 @@
         %end;
     %local path;
     %let path=%getpath(&name.);
+    %if "&path."="" %then %do;
+      %put WARNING: Macro<&name.> not exist!;
+      %goto exit;
+    %end;
     
     %local list;
     %dep(&name.,list);
