@@ -68,7 +68,7 @@
         %end;
     %else %if not %sysfunc(fileexist(&file.)) %then
         %do;
-            %put WARNING: MACRO<&name.> has not test!;
+            %put WARNING: MACRO<&name.> has no test!;
             %return;
         %end;
     %inc "&file.";

@@ -45,6 +45,11 @@
     %* import fundamental macros.;
     ;
     
+    %if not %symexist(g_debug) %then %do;
+      %global g_debug;
+      %let g_debug=0;
+    %end;
+    
     %inc "&srclang.nvalid.sas";
     %inc "&srclang.canonicalname.sas";
     %inc "&srclang.getpath.sas";

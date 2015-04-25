@@ -37,4 +37,8 @@
             %end;
             options &mdfopns.;
         %end;
+    
+    %if %symexist(g_debug) and "&g_debug."="1" %then %do;
+       options notes source mprint mlogic symbolgen;
+    %end;
 %mend;

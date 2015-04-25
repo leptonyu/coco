@@ -1,2 +1,5 @@
 %inc "&_SASWS_./autoexec.sas";
-%test(help);
+%test(sh);
+%sh(
+put hello;
+);

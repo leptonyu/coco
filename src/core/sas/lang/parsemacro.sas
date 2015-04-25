@@ -60,7 +60,7 @@
 
             if text="'" then
                 do;
-                    sq=ifn(1, 0, 1);
+                    sq=ifn(sq, 0, 1);
                     goto cont;
                 end;
 

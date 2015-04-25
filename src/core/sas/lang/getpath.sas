@@ -9,7 +9,7 @@
 %macro getpath(filename, suffix=, srcid=);
     %let filename=%canonicalname(&filename.);
 
-    %if %length(&filename.)=0 %then
+    %if "&filename."="" %then
         %return;
 
     %if not %symexist(g_src) %then
