@@ -75,6 +75,48 @@ This macro provides the test suite for ***coco*** macros. It runs the test of th
 #### %sh(code) (Still developing)
 It's a ***coco*** script interpreter runner. It can be used to simplify the code of using ***coco*** library.
 
+#### %help(name)
+Print help infomation for specific macro, for example:
+
+```
+%help(help);
+
+logout:
++-HELP help---------------------------------------------------------------------+
+| name       help                                                               |
+| path       /folders/myfolders/src/core/sas/lang/help.sas                      |
+| dep        canonicalname                    dep                               |
+|            getpath                          listmacro                         |
+|            option                           sort                              |
++-------------------------------------------------------------------------------+
+| author     Daniel YU                                                          |
+| since      2015-04-24 23:30:06                                                |
+| version    1.0                                                                |
+| desp       get help of macro                                                  |
++------------------------------------------------------------Designed by Daniel-+
+```
+If name is empty then print all macros exist in ***coco***:
+
+```
+%help();
+
+logout:
+ +-LIST coco Macros--------------------------------------------------------------+
+ | 1          asserteq                                                           |
+ | 2          assertne                                                           |
+ | 3          assertref                                                          |
+ | 4          canonicalname                                                      |
+ | 5          dep                                                                |
+ | 6          getpath                                                            |
+ | 7          hasprefix                                                          |
+ | 8          hassuffix                                                          |
+ | 9          help                                                               |
+ | 10         import                                                             |
+~~~~~~~~~~~~~~~ ignore some logs.
+ | 48         validate                                                           |
+ +------------------------------------------------------------Designed by Daniel-+
+```
+
 
 ### Author
 Daniel YU (http://icymint.me)
