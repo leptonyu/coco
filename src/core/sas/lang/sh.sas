@@ -35,7 +35,7 @@
         array method{16} $1024;
         file &__temp__.;
         err=0;
-        px='/\/\*|\*\/|%?\*.*?;';
+        px='/\/\*|\*\/';
         px=trim(px)||'|[(){};"'||"'"||']';
         px=trim(px)||'|[_a-z][_0-9a-z]*\s*=';
         px=trim(px)||'|[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?';
@@ -323,6 +323,7 @@ cont:
             do;
                 put 'ERROR: Uncomplete code!';
                 err=1;
+                put _all_;
                 goto stop;
             end;
 stop:
