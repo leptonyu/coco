@@ -1,35 +1,40 @@
 /*************************************************
-* Copyright(c) 2015 coco, All Rights Reserved.
-* @author  Daniel YU
-* @since   2015-04-09 09:32:34
-* @version 1.0
-* 
-*************************************************/
+ * Copyright(c) 2015 coco, All Rights Reserved.
+ * @author  Daniel YU
+ * @since   2015-04-09 09:32:34
+ * @version 1.0
+ *
+ *************************************************/
+
+%import(sas_set_name);
+%import(sas_lib_name);
+%import(ismacroref);
 
 %macro sas_set_index(fin, _index_);
-    %local lib;
+    %local lib name;
+    %let name=%sas_set_name(&fin.);
 
-    %if not %index(&fin., .) %then
-        %let lib=work;
-    %else
+    %if "&name."="" %then
         %do;
-            %let lib=%upcase(%scan(&fin., 1, .));
-            %let fin=%scan(&fin., 2, .);
+            %put WARN: Dataset<&fin.> is not valid!;
+            %return;
         %end;
 
-    %if %sysfunc(exist(&lib..&fin.)) %then
+    %if not %ismacroref(&_index_.) %then
         %do;
+            %local index;
+            %let _index_=index;
+        %end;
+    %let lib=%sas_lib_name(&fin.);
 
+    %if %sysfunc(exist(&lib..&name.)) %then
+        %do;
             proc sql noprint;
-                select compress(indxname||'|'||name) into :&_index_. separated 
-                    by ' ' from sashelp.vindex where libname="&lib." and 
-                    memname=upcase("&fin.") and idxusage="simple";
+                select name into :&_index_. separated 
+                    by ' ' from sashelp.vindex where lowcase(libname)="&lib."
+                    and lowcase(memname)="&name.";
             quit;
 
         %end;
-    %else
-        %let &_index_.=1;
-
-    %if not %index(&&&_index_., |) %then
-        %let &_index_.=1;
+    %put NOTE: Dataset<&lib..&name.> index is &&&_index_.;
 %mend;

@@ -6,19 +6,26 @@
 * 
 *************************************************/
 
-%macro sas_set_nobs(fins,_nobs_);
-	data _null_;
-		length table $41;
-		nobs=0;
-		i=1;table=scan("&fins.",i,' ');
-		do while(compress(table)^='');
-			dsid=open(table);
-			if dsid then do;
-				nobs+attrn(dsid,'nobs');
-				rc=close(dsid);
-			end;else put 'ERROR: Dataset ' table ' not exist!';
-			i+1;table=scan("&fins.",i,' ');
-		end;
-		call symput("&_nobs_.",compress(put(nobs,8.)));
-	run;
+%import(sas_set_name);
+%import(sas_lib_name);
+
+%macro sas_set_nobs(fins);
+  %local fin i fid rc name nobs;
+  %let nobs=0;
+  %let i=1;
+  %let fin=%scan(&fins.,&i.,%str( ));
+  %do %while("&fin."^="");
+      %let name=%sas_set_name(&fin.);
+      %if "&name."^="" %then %do;
+        %let fin=%sas_lib_name(&fin.).&name.;
+        %let fid=%sysfunc(open(&fin.));
+        %if &fid. %then %do;
+          %let nobs=%eval(&nobs.+%sysfunc(attrn(&fid.,nobs)));
+          %let rc=%sysfunc(close(&fid.));
+        %end;
+      %end;
+      %let i=%eval(&i.+1);
+      %let fin=%scan(&fins.,&i.,%str( ));
+  %end;
+	&nobs.
 %mend;

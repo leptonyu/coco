@@ -9,7 +9,7 @@
 %macro nvalid(name);
     %local rc;
 
-    %if %length(&name.)=0 %then
+    %if "&name."="" %then
         %do;
             %let rc=0;
         %end;

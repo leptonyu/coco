@@ -38,8 +38,13 @@
     %let g_handler_sec=sas_sec_;
     %global g_handler_str;
     %let g_handler_str=sas_str_;
+    %global g_handler_set;
+    %let g_handler_set=sas_set_;
+    %global g_handler_lib;
+    %let g_handler_lib=sas_lib_;
     %* import fundamental macros.;
     ;
+    
     %inc "&srclang.nvalid.sas";
     %inc "&srclang.canonicalname.sas";
     %inc "&srclang.getpath.sas";
@@ -47,6 +52,7 @@
 %mend;
 
 %__init_coco__;
+
 %sysmacdelete __init_coco__;
 %* using import to import core macros.;
 %* This part canbe modified;
