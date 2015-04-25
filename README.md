@@ -72,8 +72,53 @@ This is the core macro of ***coco***, its implementation is based on the princip
 #### %test(name)
 This macro provides the test suite for ***coco*** macros. It runs the test of the given macro. And the test file should in the same folder as the given macro, and the name of test file should add suffix _test. For example, the test file of macro %import is import_test.sas, while its source file is import.sas. This is motivated golang.
 
-#### %sh(code) (Still developing)
+#### %sh(code)
 It's a ***coco*** script interpreter runner. It can be used to simplify the code of using ***coco*** library.
+
+##### Examples:
+
+```
+1. simplify import.
+
+%sh(help);
+--->
+%import(help);
+%help();
+
+2. create variables.
+%sh(
+var=f.list;
+help "$var";
+);
+--->
+%let g__var=f.list;
+%import(help);
+%help(&g__var);
+
+%sh(
+name=Daniel;
+put "Hello, I'm $name" ;
+);
+-->
+%let g__name=Daniel;
+%put Hello, I'm &g__name;
+
+3. simplify macro invoke.
+%sh(
+method "p1" p2 "p 3";
+);
+-->
+%import(method);
+%method(p1,p2,p 3);
+
+%sh(
+method p1 p2 p3;
+);
+-->
+%import(method);
+%method(p1,p2,p3);
+
+```
 
 #### %help(name)
 Print help infomation for specific macro, for example:

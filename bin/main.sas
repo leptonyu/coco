@@ -1,5 +1,6 @@
 %inc "&_SASWS_./autoexec.sas";
-%test(sh);
 %sh(
+var=f.list;
+put "$var";
 put hello;
 );
