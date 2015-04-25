@@ -25,7 +25,7 @@
         file &__temp__.;
         err=0;
         px='/\/\*|\*\/|%?\*.*?;';
-        px=trim(px)||'|[(){};"]';
+        px=trim(px)||'|[(){};"'||"'"||']';
         px=trim(px)||'|[_a-z][_0-9a-z]*\s*=';
         px=trim(px)||'|[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?';
         px=trim(px)||'/i';
@@ -36,7 +36,9 @@
         buff=symget("SYSPBUFF");
         com=0;
         sq=0;
+        mq=0;
         sqstart=-1;
+        mqstart=-1;
         new=1;
         id=0;
         mid=0;
@@ -48,8 +50,7 @@
         last=-1;
 
         do while(pos>0);
-
-            if sq=0 and last^=-1 and pos>last then
+            if sq=0 and mq=0 and last^=-1 and pos>last then
                 do;
                     ig=substr(buff, last, pos-last);
 
@@ -74,12 +75,25 @@
                     com=1;
                     goto cont;
                 end;
-
-            if item='"' then
+            if item='"' and mq=0 then
                 do;
                     sq=ifn(sq, 0, 1);
-
                     if sq=1 then
+                        do;
+                            mqstart=pos;
+                        end;
+                    else
+                        do;
+                            item=substr(buff, mqstart, pos-mqstart+1);
+                            goto word;
+                        end;
+                    goto cont;
+                end;
+
+            if item="'" and sq=0 then
+                do;
+                    mq=ifn(mq, 0, 1);
+                    if mq=1 then
                         do;
                             sqstart=pos;
                         end;
@@ -91,7 +105,7 @@
                     goto cont;
                 end;
 
-            if com=1 or sq=1 then
+            if com=1 or sq=1 or mq=1 then
                 goto cont;
 
             if prxmatch(igtoken, trim(item)) then
@@ -146,6 +160,7 @@ method:
                             if name='put' then
                                 do;
                                     put '%put ' @;
+
                                     do i=2 to mid;
                                         put method[i] @;
                                     end;
@@ -207,6 +222,7 @@ endmethod:
             else
                 do;
                     item=dequote(tranwrd(item, '$', '&g__'));
+                    item=prxchange('s/(["'||"'"||'])/%str(%$1)/',-1,item);
                 end;
             method[mid]=item;
 cont:
@@ -245,9 +261,19 @@ stop:
 
     %if not %sysfunc(fexist(&__temp__.)) %then
         %goto exit;
+
+    %if %symexist(g_sh_openlog) %then
+        %do;
+
+            %if "&g_sh_openlog."="1" %then
+                %do;
+                    %put --- SH: AUTO CREATED CODE >>> START ---;
+                    %print(%sysfunc(pathname(&__temp__.)));
+                    %put --- SH: AUTO CREATED CODE <<< END   ---;
+                %end;
+        %end;
     %option(__option__);
-     %inc "%sysfunc(pathname(&__temp__.))"; 
-/*     %print(%sysfunc(pathname(&__temp__.))); */
+    %inc "%sysfunc(pathname(&__temp__.))";
     %option(__option__);
 %exit:
     %ref(__temp__, clear);

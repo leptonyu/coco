@@ -2,7 +2,8 @@
 %*%asserteq( ,%sh());
 %*%assertne( ,%sh());
 %*%assertref( );
-
+%global g_sh_openlog;
+%let g_sh_openlog=1;
 %* test empty;
 %sh();
 
@@ -24,3 +25,15 @@ help "$abc"
 
 %sh(
 );
+
+%sh(
+name=Daniel;
+put "Hello, I'm $name" ;
+);
+
+%sh(
+name=Daniel;
+put 'Hello, I"m $name' ;
+);
+
+%symdel g_sh_openlog;
