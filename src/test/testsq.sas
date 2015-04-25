@@ -6,7 +6,7 @@
 * 
 *************************************************/
 
-%macro testsq(num=100000);
+%macro testsq(num=1000);
     %local i;
     %do i=1 %to &num.;
         %if "&i"="" %then %put &i.;

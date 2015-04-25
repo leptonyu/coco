@@ -3,25 +3,32 @@
  * @author  Daniel YU
  * @since   2015-04-09 09:32:34
  * @version 1.0
- *
+ * @desp    shell for coco macros
  *************************************************/
 
 %import(option);
 %import(ref);
 %import(print);
+%import(sort);
 %import(canonicalname);
 %import(getpath);
 
 %macro sh/parmbuff;
-    %local __option__ __temp__ __timestart__;
+    %local __option__ __temp__ __timestart__ __g__;
     %let __timestart__=%sysfunc(time());
     %option(__option__);
     %ref(__temp__);
+    %if %symexist(g_sh) %then %do;
+       %let g_sh=%eval(&g_sh.+1);
+    %end;%else %do;
+       %global g_sh;
+       %let g_sh=1;
+    %end;
 
     data _null_;
-        length buff $32767 token 8 item $64 px $4096 com 3 ig $1024 name $32;
+        length buff $32767 token 8 item $4096 px $4096 com 3 ig $1024 name $32;
         array stack{2000} $1024;
-        array method{12} $1024;
+        array method{16} $1024;
         file &__temp__.;
         err=0;
         px='/\/\*|\*\/|%?\*.*?;';
@@ -43,8 +50,8 @@
         id=0;
         mid=0;
         bigstatus=0;
-        starttoken=prxparse('/[({]/');
-        stoptoken=prxparse('/[)};]/');
+        starttoken=prxparse('/^[({]$/');
+        stoptoken=prxparse('/^[)};]$/');
         start=1;
         stop=length(trim(buff));
         call prxnext(token, start, stop, buff, pos, len);
@@ -112,11 +119,7 @@
 
             if com=1 or sq=1 or mq=1 then
                 goto cont;
-
-            if prxmatch(igtoken, trim(item)) then
-                do;
-                    goto cont;
-                end;
+            if prxmatch(igtoken,trim(item)) then goto cont;
 word:
 
             /* method stack */
@@ -171,6 +174,8 @@ method:
                                     put '%put ' @;
 
                                     do i=2 to mid;
+                    method[i]=dequote(method[i]);
+                    method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', -1, method[i]);
                                         put method[i] @;
                                     end;
                                     put ';';
@@ -195,9 +200,11 @@ method:
                                 end;
 
                             do i=2 to mid;
-
                                 if i>2 then
                                     put ',' @;
+                                
+                    method[i]=dequote(method[i]);
+                    method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', -1, method[i]);
                                 put method[i] +(-1) @;
                             end;
                             put ');';
@@ -210,9 +217,14 @@ endmethod:
                         end;
                     else if prxmatch(lettoken, trim(method[1])) then
                         do;
+                            name=compress(method[1],' =');
+                            put '%global g__' name +(-1) ';';
+                            put '%let __g__=&__g__. g__' name ';';
                             put '%let g__' method[1] +(-1) @;
 
                             do i=2 to mid;
+                    method[i]=dequote(method[i]);
+                    method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', -1, method[i]);
                                 put method[i] +(-1) @;
                             end;
                             put ';';
@@ -244,9 +256,8 @@ endmethod:
                     if index(item, '"')=1 then
                         do;
                             item=tranwrd(item, '$', '&g__');
+                            item=tranwrd(item, '#', 'g__');
                         end;
-                    item=dequote(item);
-                    item=prxchange('s/(["'||"'"||'])/%str(%$1)/', -1, item);
                 end;
             method[mid]=item;
 cont:
@@ -270,6 +281,8 @@ stop:
             do;
                 call symputx('SYSRC', '1');
             end;
+        put '%let __g__=%sort(&__g__.,uniq=1);';
+        put '%symdel &__g__.;';
     run;
 
     %if &sysrc. %then
@@ -300,6 +313,7 @@ stop:
     %inc "%sysfunc(pathname(&__temp__.))";
     %option(__option__);
 %exit:
+    %let g_sh=%eval(&g_sh.-1);
     %ref(__temp__, clear);
     %option(__option__);
     %put NOTE: MACRO<&sysmacroname.> run %sysevalf(%sysfunc(time())-&__timestart__.)s.;

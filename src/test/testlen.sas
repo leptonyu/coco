@@ -6,7 +6,7 @@
 * 
 *************************************************/
 
-%macro testlen(num=100000);
+%macro testlen(num=1000);
     %local i;
     %do i=1 %to &num.;
         %if %length(&i.)=0 %then %put &i.;

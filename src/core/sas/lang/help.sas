@@ -10,6 +10,7 @@
 %import(getpath);
 %import(option);
 %import(dep);
+%import(depby);
 %import(listmacro);
 %import(sort);
 
@@ -48,9 +49,11 @@
       %goto exit;
     %end;
     
-    %local list;
+    %local list listby;
     %dep(&name.,list);
     %let list=%sort(&list.,uniq=1);
+    %depby(&name.,listby);
+    %let listby=%sort(&listby.,uniq=1);
 
     data _null_;
         length stoken 8 etoken 8 itoken 8 state 8 name $32 line $128 total 8
@@ -85,6 +88,22 @@
                     %let i=%eval(&i.+2);
                     %let v=%scan(&list.,&i.,%str( ));
                     %let y=%scan(&list.,%eval(&i.+1),%str( ));
+                  %end;
+                %end;
+                %if "&listby."^="" %then %do;
+                  %local i v y;
+                  %let i=1;
+                  %let v=%scan(&listby.,&i.,%str( ));
+                  %let y=%scan(&listby.,%eval(&i.+1),%str( ));
+                  %do %while("&v."^="");
+                    %if &i.=1 %then %do;
+                        put line @3 'depby' @14 "&v." @47 "&y. ";
+                    %end;%else %do;
+                        put line @14 "&v." @47 "&y. ";
+                    %end;
+                    %let i=%eval(&i.+2);
+                    %let v=%scan(&listby.,&i.,%str( ));
+                    %let y=%scan(&listby.,%eval(&i.+1),%str( ));
                   %end;
                 %end;
                 line='+'||repeat('-',total)||'+';

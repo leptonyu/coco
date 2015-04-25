@@ -27,6 +27,10 @@
     %global g_src_9;
     %let g_src_9=&_SASWS_./src/test/;
     ;
+    %local i;
+    %do i=0 %to 9;
+       %if %symexist(g_src_list_&i.) %then %symdel g_src_list_&i.;
+    %end;
     %* create handler pointer;
     %global g_handler_f;
     %let g_handler_f=sas_file_;

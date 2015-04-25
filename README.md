@@ -55,8 +55,8 @@ A *sas* library for *SAS University Edition* and *SAS Studio*.
 	![coco_desc](https://raw.githubusercontent.com/leptonyu/coco/develop/src/coco_desc.png)
 
 4. When you see coco files in My Folders like in the pic, then coco is installed complete.
-5. open bin/main.sas, write your own call code using coco.
-6. open bin/testCoco.sas and run to test coco works on your platform.
+5. open main.sas, write your own call code using coco.
+6. open src/coco_test.sas and run to test coco works on your platform.
 
 ### Source Folders of ***coco***
 ***coco*** can have 10 source folders. The main source folder used by ***coco*** source is defined in global macro variable g_src. Developers should not put your own sources in this folder.
