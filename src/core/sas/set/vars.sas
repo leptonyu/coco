@@ -3,7 +3,7 @@
 * @author  Daniel YU
 * @since   2015-04-24 22:38:13
 * @version 1.0
-* 
+* @desp    get dataset var list.
 *************************************************/
  
 %import(sas_set_name);

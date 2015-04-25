@@ -3,7 +3,7 @@
  * @author  Daniel YU
  * @since   2015-04-24 14:26:08
  * @version 1.0
- *
+ * @desp    get dataset libname.
  *************************************************/
  
 %import(nvalid);
