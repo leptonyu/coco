@@ -1,4 +1,4 @@
 %inc "&_SASWS_./autoexec.sas";
-%let g_sh_openlog=1;
+%let g_sh_openlog=0;
 
-%test(_all_);
+%sh(help sh);

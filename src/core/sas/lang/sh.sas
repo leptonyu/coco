@@ -64,7 +64,7 @@
         call prxnext(token, start, stop, buff, pos, len);
         last=-1;
         
-        put '%macro _sh_' "&g_sh." '();';
+        put '%macro ' "_sh_&g_sh." '();';
         put '   %local g__;';
 
         do while(pos>0);
@@ -345,7 +345,8 @@ stop:
             end;
        else do;
            put '%mend;';
-           put '%_sh_' "&g_sh." '();';
+           put '%' "_sh_&g_sh." '();';
+           put '%sysmacdelete' " _sh_&g_sh.;";
        end;
     run;
 
@@ -379,6 +380,6 @@ stop:
 %exit:
     %ref(__temp__, clear);
     %option(__option__);
-    %put NOTE: MACRO<&sysmacroname.(&g_sh.)> run %sysevalf(%sysfunc(time())-&__timestart__.)s.;
+    %put NOTE: MACRO<&sysmacroname.(&g_sh.)> run %trim(%sysfunc(abs(%sysevalf(%sysfunc(time())-&__timestart__.)),10.3))s.;
     %let g_sh=%eval(&g_sh.-1);
 %mend;

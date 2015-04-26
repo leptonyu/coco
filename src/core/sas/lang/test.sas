@@ -3,7 +3,7 @@
 * @author  Daniel YU
 * @since   2015-04-09 09:32:34
 * @version 1.0
-* 
+* @desp    Interpreter for coco script.
 *************************************************/
 
 %import(ismacroref);
@@ -74,5 +74,5 @@
     %inc "&file.";
     %let &_check_.=1;
 %exit:
-    %put NOTE: Test MACRO<&name.> OK%str(,) cost %sysevalf(%sysfunc(time())-&__timestart__.)s.;
+    %put NOTE: Test MACRO<&name.> OK%str(,) cost %trim(%sysfunc(abs(%sysevalf(%sysfunc(time())-&__timestart__.)),10.3))s.;
 %mend;
