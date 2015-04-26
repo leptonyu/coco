@@ -46,6 +46,7 @@
         lettoken=prxparse('/^[_a-z][_0-9a-z]*\s*=$/i');
         shtoken=prxparse('/^\s*\(.*\)\s*$/i');
         buff=prxchange('s/^\((.*)\)\s*$/$1;/', 1, symget("SYSPBUFF"));
+        if compress(buff)='' then stop;
         com=0;
         sq=0;
         mq=0;
@@ -62,6 +63,9 @@
         stop=length(trim(buff));
         call prxnext(token, start, stop, buff, pos, len);
         last=-1;
+        
+        put '%macro _sh_' "&g_sh." '();';
+        put '   %local g__;';
 
         do while(pos>0);
 
@@ -155,6 +159,8 @@
 
             if prxmatch(igtoken, trim(item)) then
                 goto cont;
+            if item='{' then bigstatus+1;
+            if item='}' then bigstatus=bigstatus-1;
 word:
 
             /* method stack */
@@ -166,26 +172,18 @@ word:
                 end;
             else if prxmatch(stoptoken, trim(item)) then
                 do;
-                    if id=0 then
-                        do;
-                            if item^=';' then
-                                do;
-                                    put 'ERROR: Not Complete';
-                                    err=1;
-                                    goto stop;
-                                end;
-                        end;
-                    else if compress(stack[id]||item)='{}' then
+                    if item='}' and (id=0 or stack[id]^='{') then do;
+                        put 'ERROR: Uncomplete {}';
+                        err=1;
+                        goto stop;
+                    end;
+                    if id>0 then do;
+                       if compress(stack[id]||item)='{}' then
                         do;
                             stack[id]='';
                             id=id-1;
                         end;
-                    else
-                        do;
-                            put 'ERROR: Not Complete';
-                            err=1;
-                            goto stop;
-                        end;
+                    end;
 method:
 
                     if mid<=0 then
@@ -225,7 +223,7 @@ method:
                                 end;
                             put '%import(' name +(-1) ');';
 
-                            if item='}' then
+                            if bigstatus or item='}' then
                                 do;
                                     put '%let g__=%' name +(-1) '(' @;
                                 end;
@@ -245,7 +243,7 @@ method:
                             end;
                             put ');';
 
-                            if item='}' then
+                            if bigstatus or item='}' then
                                 do;
                                     put '%put &g__.;';
                                 end;
@@ -255,9 +253,6 @@ endmethod:
                         do;
                             name=compress(method[1], ' =');
                             call symputx('g__'||name, '', 'LOCAL');
-
-                            /*                             put '%global g__' name +(-1) ';'; */
-                            /*                             put '%let __g__=&__g__. g__' name ';'; */
                             put '%let g__' method[1] +(-1) @;
 
                             do i=2 to mid;
@@ -309,10 +304,35 @@ cont:
                         goto stop;
                     end;
             end;
+        if id then do;
+          put 'ERROR: Stack uncomplete ' @;
+          do i=1 to id;
+             put stack[id]= @;
+          end;
+          put ' ';
+          err=1;
+          goto stop;
+        end;
+        
+        if bq then do;
+           put 'ERROR: Uncomplete ()';
+           err=1;
+           goto stop;
+        end;
+        
+        if mid then do;
+           put 'ERROR: executed method ' @;
+          do i=1 to mid;
+             put method[mid]= @;
+          end;
+          put ' ';
+          err=1;
+          goto stop;
+        end;
 
-        if mq or sq or bq then
+        if mq or sq  then
             do;
-                put 'ERROR: Uncomplete code!';
+                put 'ERROR: Uncomplete string';
                 err=1;
                 put _all_;
                 goto stop;
@@ -323,6 +343,10 @@ stop:
             do;
                 call symputx('SYSRC', '1');
             end;
+       else do;
+           put '%mend;';
+           put '%_sh_' "&g_sh." '();';
+       end;
     run;
 
     %if &sysrc. %then
@@ -350,7 +374,7 @@ stop:
                 %end;
         %end;
     %option(__option__);
-    %inc "%sysfunc(pathname(&__temp__.))";
+    %inc "%sysfunc(pathname(&__temp__.))"; 
     %option(__option__);
 %exit:
     %ref(__temp__, clear);
