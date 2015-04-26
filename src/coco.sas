@@ -54,7 +54,7 @@
       %let g_debug=0;
     %end;
     
-    %inc "&srclang.nvalid.sas";
+    %inc "&g_src.nvalid.sas";
     %inc "&srclang.canonicalname.sas";
     %inc "&srclang.getpath.sas";
     %inc "&srclang.import.sas";

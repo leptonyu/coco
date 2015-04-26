@@ -14,7 +14,7 @@
 %import(getpath);
 
 %macro sh/parmbuff;
-    %local __option__ __temp__ __timestart__ __g__;
+    %local __option__ __temp__ __timestart__;
     %let __timestart__=%sysfunc(time());
     %option(__option__);
     %ref(__temp__);
@@ -143,6 +143,8 @@
                     if bq=0 then
                         do;
                             item=substr(buff, bqstart, pos-bqstart+1);
+                            put '%sh' item +(-1) ';';
+                            item=';';
                             goto word;
                         end;
                     goto cont;
@@ -160,17 +162,12 @@ word:
                 do;
                     id+1;
                     stack[id]=item;
-
-                    if item='{' then
-                        bigstatus+1;
                     goto method;
                 end;
             else if prxmatch(stoptoken, trim(item)) then
                 do;
-
                     if id=0 then
                         do;
-
                             if item^=';' then
                                 do;
                                     put 'ERROR: Not Complete';
@@ -182,7 +179,6 @@ word:
                         do;
                             stack[id]='';
                             id=id-1;
-                            bigstatusb=bigstatus-1;
                         end;
                     else
                         do;
@@ -229,7 +225,7 @@ method:
                                 end;
                             put '%import(' name +(-1) ');';
 
-                            if bigstatus then
+                            if item='}' then
                                 do;
                                     put '%let g__=%' name +(-1) '(' @;
                                 end;
@@ -249,7 +245,7 @@ method:
                             end;
                             put ');';
 
-                            if bigstatus then
+                            if item='}' then
                                 do;
                                     put '%put &g__.;';
                                 end;
@@ -258,8 +254,10 @@ endmethod:
                     else if prxmatch(lettoken, trim(method[1])) then
                         do;
                             name=compress(method[1], ' =');
-                            put '%global g__' name +(-1) ';';
-                            put '%let __g__=&__g__. g__' name ';';
+                            call symputx('g__'||name, '', 'LOCAL');
+
+                            /*                             put '%global g__' name +(-1) ';'; */
+                            /*                             put '%let __g__=&__g__. g__' name ';'; */
                             put '%let g__' method[1] +(-1) @;
 
                             do i=2 to mid;
@@ -281,16 +279,9 @@ endmethod:
                     if not prxmatch(mtoken, trim(item)) and not 
                         prxmatch(lettoken, trim(item)) then
                             do;
-                            if prxmatch(shtoken, trim(item)) then
-                                do;
-                                   put '%sh' item +(-1) ';';
-                                end;
-                            else
-                                do;
-                                    put 'ERROR: Unknown method ' item;
-                                    err=1;
-                                    goto stop;
-                                end;
+                            put 'ERROR: Unknown method ' item;
+                            err=1;
+                            goto stop;
                         end;
                 end;
             else
@@ -332,8 +323,6 @@ stop:
             do;
                 call symputx('SYSRC', '1');
             end;
-        put '%let __g__=%sort(&__g__.,uniq=1);';
-        put '%symdel &__g__.;';
     run;
 
     %if &sysrc. %then

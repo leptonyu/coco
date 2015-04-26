@@ -9,7 +9,7 @@
 %import(isfileref);
 
 %macro parsemacro(path,fileref);
-    %if %length(&path.)=0 %then %return;
+    %if "&path."="" %then %return;
     %if not %sysfunc(fileexist(&path.)) %then %return;
 
     data _null_;
