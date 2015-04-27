@@ -45,7 +45,7 @@
                 px=trim(px)||'substr|dmidsply|klength|qkcmpres|superq|';
                 px=trim(px)||'dmisplit|kscan|qkleft|symdel|do|ksubstr|';
                 px=trim(px)||'qkscan|symexist|edit|ktrim|qksubstr|symglobl|';
-                px=trim(px)||'else|kupcase|qktrim|symlocal|)$/i';
+                px=trim(px)||'else|kupcase|qktrim|symlocal|sysmacdelete)$/i';
                 systoken=prxparse(px);
                 m=0;
                 q='|';

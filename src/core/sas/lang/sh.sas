@@ -28,25 +28,30 @@
             %global g_sh;
             %let g_sh=1;
         %end;
+    %if not %symexist(g_sh_last) %then %do;
+        %global g_sh_last;
+    %end;
 
     data _null_;
-        length buff $32767 token 8 item $4096 px $4096 com 3 ig $1024 name $32;
+        length buff $32767 token 8 item $4096 px $4096 com 3 ig $1024 name $32
+imports $4096 retrn $32;
         array stack{20} $1024;
         array method{16} $1024;
         file &__temp__.;
         err=0;
         px='/\/\*|\*\/';
         px=trim(px)||'|[(){};"'||"'"||']';
-        px=trim(px)||'|[_a-z][_0-9a-z]*\s*=';
+        px=trim(px)||'|(\$|[_a-z][_0-9a-z]*)\s*=';
         px=trim(px)||'|[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?';
         px=trim(px)||'/i';
         token=prxparse(px);
         igtoken=prxparse("/^(%?\*|\'|%.*:)/");
         mtoken=prxparse('/^[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?$/i');
-        lettoken=prxparse('/^[_a-z][_0-9a-z]*\s*=$/i');
+        lettoken=prxparse('/^([_a-z][_0-9a-z]*|\$)\s*=$/i');
         shtoken=prxparse('/^\s*\(.*\)\s*$/i');
         buff=prxchange('s/^\((.*)\)\s*$/$1;/', 1, symget("SYSPBUFF"));
         if compress(buff)='' then stop;
+        retrn='g__';
         com=0;
         sq=0;
         mq=0;
@@ -57,19 +62,20 @@
         id=0;
         mid=0;
         bigstatus=0;
+        imports='|';
         starttoken=prxparse('/^[{]$/');
         stoptoken=prxparse('/^[};]$/');
         start=1;
         stop=length(trim(buff));
         call prxnext(token, start, stop, buff, pos, len);
-        last=-1;
+        last=1;
         
         put '%macro ' "_sh_&g_sh." '();';
-        put '   %local g__;';
+        put '    %local ' retrn +(-1) ';';
+        put '    %let g_sh_last=;';
 
         do while(pos>0);
-
-            if sq=0 and mq=0 and bq=0 and last^=-1 and pos>last then
+           if sq=0 and mq=0 and bq=0 and pos>last then
                 do;
                     ig=substr(buff, last, pos-last);
 
@@ -147,7 +153,8 @@
                     if bq=0 then
                         do;
                             item=substr(buff, bqstart, pos-bqstart+1);
-                            put '%sh' item +(-1) ';';
+                            put '    %sh' item +(-1) ';';
+                            put '    %let ' retrn +(-1) '=&g_sh_last.;';
                             item=';';
                             goto word;
                         end;
@@ -203,7 +210,7 @@ method:
 
                             if name='put' then
                                 do;
-                                    put '%put ' @;
+                                    put '    %put ' @;
 
                                     do i=2 to mid;
                                         method[i]=dequote(method[i]);
@@ -221,15 +228,17 @@ method:
                                     err=1;
                                     goto stop;
                                 end;
-                            put '%import(' name +(-1) ');';
+                            if not index(imports,'|'||trim(name)||'|') then do;
+                                imports='|'||trim(name)||imports;
+                            end;
 
                             if bigstatus or item='}' then
                                 do;
-                                    put '%let g__=%' name +(-1) '(' @;
+                                    put '    %let ' retrn +(-1) '=%' name +(-1) '(' @;
                                 end;
                             else
                                 do;
-                                    put '%' name +(-1) '(' @;
+                                    put '    %' name +(-1) '(' @;
                                 end;
 
                             do i=2 to mid;
@@ -245,15 +254,15 @@ method:
 
                             if bigstatus or item='}' then
                                 do;
-                                    put '%put &g__.;';
+                                    put '    %put &' retrn +(-1) '.;';
                                 end;
 endmethod:
                         end;
                     else if prxmatch(lettoken, trim(method[1])) then
                         do;
-                            name=compress(method[1], ' =');
-                            call symputx('g__'||name, '', 'LOCAL');
-                            put '%let g__' method[1] +(-1) @;
+                            name=trim(retrn)||compress(method[1], ' =$');
+                            call symputx(name, '', 'LOCAL');
+                            put '    %let ' name +(-1) '=' @;
 
                             do i=2 to mid;
                                 method[i]=dequote(method[i]);
@@ -284,8 +293,8 @@ endmethod:
 
                     if index(item, '"')=1 then
                         do;
-                            item=tranwrd(item, '$', '&g__');
-                            item=tranwrd(item, '#', 'g__');
+                            item=tranwrd(item, '$', '&'||trim(retrn));
+                            item=tranwrd(item, '#', trim(retrn));
                         end;
                 end;
             method[mid]=item;
@@ -344,7 +353,15 @@ stop:
                 call symputx('SYSRC', '1');
             end;
        else do;
+           put '    %let g_sh_last=&' retrn +(-1) '.;';
            put '%mend;';
+           i=1;
+           name=scan(imports,i,'|');
+           do while(name^='');
+               put '%import(' name +(-1) ');';
+               i+1;
+               name=scan(imports,i,'|');
+           end;
            put '%' "_sh_&g_sh." '();';
            put '%sysmacdelete' " _sh_&g_sh.;";
        end;
@@ -369,6 +386,8 @@ stop:
 
             %if "&g_sh_openlog."="1" %then
                 %do;
+                    %put --- SH(&g_sh.): AUTO CREATED CODE >>> SOURCE ---;
+                    %put &SYSPBUFF.;
                     %put --- SH(&g_sh.): AUTO CREATED CODE >>> START ---;
                     %print(%sysfunc(pathname(&__temp__.)));
                     %put --- SH(&g_sh.): AUTO CREATED CODE <<< END   ---;

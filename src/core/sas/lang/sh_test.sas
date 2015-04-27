@@ -71,6 +71,18 @@ put '$';
 put "$"
 );
 
+%*test 11;
+%sh(
+$=hello;
+{sort "I am bad..."}
+(
+put "Here should be empty >=$"
+{sort "I am good!"}
+put "Hear should show msg >=$"
+)
+put "Hear should show lst >=$"
+);
+
 %* error test;
 %sh(%str(%());
 %asserteq(Uncomplete (),&SYSERRORTEXT.);
@@ -84,5 +96,7 @@ put "$"
 %asserteq(Uncomplete string,&SYSERRORTEXT.);
 %sh(%nrstr(%'));
 %asserteq(Uncomplete string,&SYSERRORTEXT.);
+%sh(--- put hello);
+%asserteq(Unknown token ---,&SYSERRORTEXT.);
 %put _all_;
 %symdel g_sh_openlog;
