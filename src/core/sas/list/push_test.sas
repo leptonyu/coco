@@ -13,6 +13,7 @@ list.push "$abc" nihao;
 list.string "$abc";
 list.push "$abc" nihao;
 list.string "$abc";
+list.tostr "$abc";
 list.pop "$abc";
 asserteq nihao "$";
 list.string "$abc";
