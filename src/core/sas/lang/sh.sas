@@ -12,6 +12,8 @@
 %import(sort);
 %import(canonicalname);
 %import(getpath);
+%import(sas_str_unregister);
+%import(sas_str_gc);
 
 %macro sh/parmbuff;
     %local __option__ __temp__ __timestart__;
@@ -31,6 +33,8 @@
     %if not %symexist(g_sh_last) %then %do;
         %global g_sh_last;
     %end;
+    %local g_sh_pool_&g_sh.;
+    %let g_sh_pool_&g_sh.=|;
 
     data _null_;
         length buff $32767 token 8 item $4096 px $4096 com 3 ig $1024 name $32
@@ -396,6 +400,12 @@ stop:
     %option(__option__);
     %inc "%sysfunc(pathname(&__temp__.))"; 
     %option(__option__);
+    %if "&&&g_sh_pool_&g_sh"^="|" %then %do;
+        %sas_str_unregister(&&&g_sh_pool_&g_sh..);
+        %sas_str_gc();
+    %end;%else %if &g_sh.=1 %then %do;
+        %sas_str_gc();
+    %end;
 %exit:
     %ref(__temp__, clear);
     %option(__option__);

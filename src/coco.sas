@@ -46,6 +46,8 @@
     %let g_handler_set=sas_set_;
     %global g_handler_lib;
     %let g_handler_lib=sas_lib_;
+    %global g_handler_list;
+    %let g_handler_list=sas_list_;
     %* import fundamental macros.;
     ;
     

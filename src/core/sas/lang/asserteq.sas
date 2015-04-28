@@ -7,11 +7,11 @@
 *************************************************/
 
 %macro asserteq(expected, actual);
-    %if "&expected."^="&actual." %then
+    %if "%superq(expected)" ne "%superq(actual)" %then
         %do;
-            %put ERROR: Value "&actual." was excepted to be "&expected." ;
+            %put ERROR: Value "%superq(actual)" was excepted to be "%superq(expected)" ;
             %put _LOCAL_;
             %abort;
         %end;
-    %put NOTE: <&expected.> equals <&actual.>!;
+    %put NOTE: <%superq(expected)> equals <%superq(actual)>!;
 %mend;
