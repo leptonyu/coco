@@ -6,15 +6,15 @@
 * 
 *************************************************/
 
+%import(printstack);
+
 %macro assertref(_refname_);
     %if "&_refname_."="" %then
         %do;
-            %put ERROR: Empty parameter!;
-            %abort;
+            %printstack(Empty parameter!);
         %end;
     %else %if not %symexist(&_refname_.) %then
         %do;
-            %put ERROR: &_refname_. is NOT macro variable!;
-            %abort;
+            %printstack(&_refname_. is NOT macro variable!);
         %end;
 %mend;

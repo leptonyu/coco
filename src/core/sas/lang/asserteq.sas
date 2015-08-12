@@ -6,12 +6,13 @@
 * 
 *************************************************/
 
+%import(printstack);
+
 %macro asserteq(expected, actual);
     %if "%superq(expected)" ne "%superq(actual)" %then
         %do;
-            %put ERROR: Value "%superq(actual)" was excepted to be "%superq(expected)" ;
             %put _LOCAL_;
-            %abort;
+            %printstack(Value "%superq(actual)" was excepted to be "%superq(expected)");
         %end;
     %put NOTE: <%superq(expected)> equals <%superq(actual)>!;
 %mend;

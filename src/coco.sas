@@ -59,6 +59,7 @@
     %inc "&g_src.nvalid.sas";
     %inc "&srclang.canonicalname.sas";
     %inc "&srclang.getpath.sas";
+    %inc "&srclang.printstack.sas";
     %inc "&srclang.import.sas";
 %mend;
 

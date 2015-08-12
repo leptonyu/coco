@@ -37,7 +37,6 @@
         %end;
     %else
         %do;
-            %put ERROR: MARCO &name. not found!;
-            %abort;
+            %printstack(MARCO &name. not found!);
         %end;
 %mend;

@@ -15,13 +15,13 @@
    %let v=%scan(&list_ref.,&i.,|);
    %do %while("&v."^="");
       %if &i.>1 %then %do;
-         %let str=%superq(str),;
+         %let str=&str.,;
       %end;
       %if %symexist(g_sas_pool_&v.) %then %do;
-          %let str=%superq(str)%superq(g_sas_pool_&v.);
+          %let str=&str.%superq(g_sas_pool_&v.);
       %end;
       %let i=%eval(&i.+1);
       %let v=%scan(&list_ref.,&i.,|);
    %end;
-   [%superq(str)]
+   [&str.]
 %mend;
