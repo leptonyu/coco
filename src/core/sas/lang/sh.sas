@@ -14,6 +14,7 @@
 %import(getpath);
 %import(sas_str_unregister);
 %import(sas_str_gc);
+%import(sas_list_new);
 
 %macro sh/parmbuff;
     %local __option__ __temp__ __timestart__;
@@ -30,15 +31,17 @@
             %global g_sh;
             %let g_sh=1;
         %end;
-    %if not %symexist(g_sh_last) %then %do;
-        %global g_sh_last;
-    %end;
+
+    %if not %symexist(g_sh_last) %then
+        %do;
+            %global g_sh_last;
+        %end;
     %local g_sh_pool_&g_sh.;
     %let g_sh_pool_&g_sh.=|;
 
     data _null_;
-        length buff $32767 token 8 item $4096 px $4096 com 3 ig $1024 name $32
-imports $4096 retrn $32;
+        length buff $32767 token 8 item $4096 px $4096 com 3 ig $1024 name $32 
+            imports $4096 retrn $32;
         array stack{20} $1024;
         array method{16} $1024;
         file &__temp__.;
@@ -47,14 +50,18 @@ imports $4096 retrn $32;
         px=trim(px)||'|[(){};"'||"'"||']';
         px=trim(px)||'|(\$|[_a-z][_0-9a-z]*)\s*=';
         px=trim(px)||'|[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?';
+        px=trim(px)||'|\[[^,]*?(,[^,]+)*?\]';
         px=trim(px)||'/i';
         token=prxparse(px);
+        listtoken=prxparse('/\[[^,]*(,[^,]+)*\]/');
         igtoken=prxparse("/^(%?\*|\'|%.*:)/");
         mtoken=prxparse('/^[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?$/i');
         lettoken=prxparse('/^([_a-z][_0-9a-z]*|\$)\s*=$/i');
         shtoken=prxparse('/^\s*\(.*\)\s*$/i');
         buff=prxchange('s/^\((.*)\)\s*$/$1;/', 1, symget("SYSPBUFF"));
-        if compress(buff)='' then stop;
+
+        if compress(buff)='' then
+            stop;
         retrn='g__';
         com=0;
         sq=0;
@@ -73,13 +80,13 @@ imports $4096 retrn $32;
         stop=length(trim(buff));
         call prxnext(token, start, stop, buff, pos, len);
         last=1;
-        
         put '%macro ' "_sh_&g_sh." '();';
         put '    %local ' retrn +(-1) ';';
         put '    %let g_sh_last=;';
 
         do while(pos>0);
-           if sq=0 and mq=0 and bq=0 and pos>last then
+
+            if sq=0 and mq=0 and bq=0 and pos>last then
                 do;
                     ig=substr(buff, last, pos-last);
 
@@ -170,8 +177,12 @@ imports $4096 retrn $32;
 
             if prxmatch(igtoken, trim(item)) then
                 goto cont;
-            if item='{' then bigstatus+1;
-            if item='}' then bigstatus=bigstatus-1;
+
+            if item='{' then
+                bigstatus+1;
+
+            if item='}' then
+                bigstatus=bigstatus-1;
 word:
 
             /* method stack */
@@ -183,18 +194,23 @@ word:
                 end;
             else if prxmatch(stoptoken, trim(item)) then
                 do;
-                    if item='}' and (id=0 or stack[id]^='{') then do;
-                        put 'ERROR: Uncomplete {}';
-                        err=1;
-                        goto stop;
-                    end;
-                    if id>0 then do;
-                       if compress(stack[id]||item)='{}' then
+
+                    if item='}' and (id=0 or stack[id]^='{') then
                         do;
-                            stack[id]='';
-                            id=id-1;
+                            put 'ERROR: Uncomplete {}';
+                            err=1;
+                            goto stop;
                         end;
-                    end;
+
+                    if id>0 then
+                        do;
+
+                            if compress(stack[id]||item)='{}' then
+                                do;
+                                    stack[id]='';
+                                    id=id-1;
+                                end;
+                        end;
 method:
 
                     if mid<=0 then
@@ -232,13 +248,16 @@ method:
                                     err=1;
                                     goto stop;
                                 end;
-                            if not index(imports,'|'||trim(name)||'|') then do;
-                                imports='|'||trim(name)||imports;
-                            end;
+
+                            if not index(imports, '|'||trim(name)||'|') then
+                                do;
+                                    imports='|'||trim(name)||imports;
+                                end;
 
                             if bigstatus or item='}' then
                                 do;
-                                    put '    %let ' retrn +(-1) '=%' name +(-1) '(' @;
+                                    put '    %let ' retrn +(-1) '=%' name +(-1) 
+                                        '(' @;
                                 end;
                             else
                                 do;
@@ -269,12 +288,34 @@ endmethod:
                             put '    %let ' name +(-1) '=' @;
 
                             do i=2 to mid;
-                                method[i]=dequote(method[i]);
-                                method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', 
-                                    -1, method[i]);
-                                put method[i] +(-1) @;
+
+                                if prxmatch(listtoken, trim(method[i])) then
+                                    do;
+
+                                        if i^=2 and mid^=2 then
+                                            do;
+                                                put 'ERROR: Unkown token ' 
+                                                    method[*];
+                                                err=1;
+                                                goto stop;
+                                            end;
+                                        put '%sas_list_new(' method[i] +(-1) ')' @;
+                                    end;
+                                else
+                                    do;
+                                        method[i]=dequote(method[i]);
+                                        method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', 
+                                            -1, method[i]);
+                                        put method[i] +(-1) @;
+                                    end;
                             end;
                             put ';';
+                        end;
+                    else
+                        do;
+                            put 'ERROR: Unknown token ' method[1];
+                            err=1;
+                            goto stop;
                         end;
                     mid=0;
                     goto cont;
@@ -285,7 +326,8 @@ endmethod:
                 do;
 
                     if not prxmatch(mtoken, trim(item)) and not 
-                        prxmatch(lettoken, trim(item)) then
+                        prxmatch(lettoken, trim(item)) and not 
+                        prxmatch(listtoken, trim(item)) then
                             do;
                             put 'ERROR: Unknown method ' item;
                             err=1;
@@ -317,33 +359,39 @@ cont:
                         goto stop;
                     end;
             end;
-        if id then do;
-          put 'ERROR: Stack uncomplete ' @;
-          do i=1 to id;
-             put stack[id]= @;
-          end;
-          put ' ';
-          err=1;
-          goto stop;
-        end;
-        
-        if bq then do;
-           put 'ERROR: Uncomplete ()';
-           err=1;
-           goto stop;
-        end;
-        
-        if mid then do;
-           put 'ERROR: executed method ' @;
-          do i=1 to mid;
-             put method[mid]= @;
-          end;
-          put ' ';
-          err=1;
-          goto stop;
-        end;
 
-        if mq or sq  then
+        if id then
+            do;
+                put 'ERROR: Stack uncomplete ' @;
+
+                do i=1 to id;
+                    put stack[id]=@;
+                end;
+                put ' ';
+                err=1;
+                goto stop;
+            end;
+
+        if bq then
+            do;
+                put 'ERROR: Uncomplete ()';
+                err=1;
+                goto stop;
+            end;
+
+        if mid then
+            do;
+                put 'ERROR: executed method ' @;
+
+                do i=1 to mid;
+                    put method[mid]=@;
+                end;
+                put ' ';
+                err=1;
+                goto stop;
+            end;
+
+        if mq or sq then
             do;
                 put 'ERROR: Uncomplete string';
                 err=1;
@@ -356,19 +404,21 @@ stop:
             do;
                 call symputx('SYSRC', '1');
             end;
-       else do;
-           put '    %let g_sh_last=&' retrn +(-1) '.;';
-           put '%mend;';
-           i=1;
-           name=scan(imports,i,'|');
-           do while(name^='');
-               put '%import(' name +(-1) ');';
-               i+1;
-               name=scan(imports,i,'|');
-           end;
-           put '%' "_sh_&g_sh." '();';
-           put '%sysmacdelete' " _sh_&g_sh.;";
-       end;
+        else
+            do;
+                put '    %let g_sh_last=&' retrn +(-1) '.;';
+                put '%mend;';
+                i=1;
+                name=scan(imports, i, '|');
+
+                do while(name^='');
+                    put '%import(' name +(-1) ');';
+                    i+1;
+                    name=scan(imports, i, '|');
+                end;
+                put '%' "_sh_&g_sh." '();';
+                put '%sysmacdelete' " _sh_&g_sh.;";
+            end;
     run;
 
     %if &sysrc. %then
@@ -398,17 +448,22 @@ stop:
                 %end;
         %end;
     %option(__option__);
-    %inc "%sysfunc(pathname(&__temp__.))"; 
+    %inc "%sysfunc(pathname(&__temp__.))";
     %option(__option__);
-    %if "&&&g_sh_pool_&g_sh"^="|" %then %do;
-        %sas_str_unregister(&&&g_sh_pool_&g_sh..);
-        %sas_str_gc();
-    %end;%else %if &g_sh.=1 %then %do;
-        %sas_str_gc();
-    %end;
+
+    %if "&&&g_sh_pool_&g_sh"^="|" %then
+        %do;
+            %sas_str_unregister(&&&g_sh_pool_&g_sh..);
+            %sas_str_gc();
+        %end;
+    %else %if &g_sh.=1 %then
+        %do;
+            %sas_str_gc();
+        %end;
 %exit:
     %ref(__temp__, clear);
     %option(__option__);
-    %put NOTE: MACRO<&sysmacroname.(&g_sh.)> run %trim(%sysfunc(abs(%sysevalf(%sysfunc(time())-&__timestart__.)),10.3))s.;
+    %put NOTE: MACRO<&sysmacroname.(&g_sh.)> run %trim(%sysfunc(abs(%sysevalf(%sysfunc(time())-&__timestart__.)), 
+        10.3))s.;
     %let g_sh=%eval(&g_sh.-1);
 %mend;

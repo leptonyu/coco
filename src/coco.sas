@@ -21,11 +21,13 @@
     %local srclang;
     %let srclang=&g_src.sas&g_.lang&g_.;
     ;
+    %global g_src_1;
+    %let g_src_1=&_SASWS_.&g_.src&g_.main&g_.;
     %*let g_src_1=;
     %* ...;
     %*let g_src_8=;
-    %global g_src_9;
-    %let g_src_9=&_SASWS_./src/test/;
+    %*global g_src_9;
+    %*let g_src_9=&_SASWS_.&g_.src&g_.test&g_.;
     ;
     %local i;
     %do i=0 %to 9;

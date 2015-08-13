@@ -1,11 +1,10 @@
 /*************************************************
-* Copyright(c) 2015 coco, All Rights Reserved.
-* @author  Daniel YU
-* @since   2015-04-09 09:32:34
-* @version 1.0
-* 
-*************************************************/
-
+ * Copyright(c) 2015 coco, All Rights Reserved.
+ * @author  Daniel YU
+ * @since   2015-04-09 09:32:34
+ * @version 1.0
+ *
+ *************************************************/
 %macro getpath(filename, suffix=, srcid=);
     %let filename=%canonicalname(&filename.);
 
@@ -43,22 +42,21 @@
 
     %local i;
 
-            %if %index(&filename., sas)^=1 %then
-                %do i=1 %to 9;
+            %do i=1 %to 9;
 
-                    %if %symexist(g_src_&i.) %then
-                        %do;
-                            %let path=&&g_src_&i.;
-                            %let path=&path.&filename.;
+                %if %symexist(g_src_&i.) %then
+                    %do;
+                        %let path=&&g_src_&i.;
+                        %let path=&path.&filename.;
 
-                            %if %sysfunc(fileexist(&path..sas)) %then
-                                %do;
-                                    %let path=&path.&suffix..sas;
-                                    &path.
+                        %if %sysfunc(fileexist(&path..sas)) %then
+                            %do;
+                                %let path=&path.&suffix..sas;
+                                &path.
                             %return;
-                                %end;
-                        %end;
-                %end;
+                            %end;
+                    %end;
+            %end;
         %end;
     %else %if "&srcid."="0" %then
         %do;

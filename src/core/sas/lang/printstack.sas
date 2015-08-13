@@ -7,15 +7,14 @@
 *************************************************/
  
 %macro printstack(message,abort=1);
-	%local depth len;
+	%local depth;
 	%let depth=%sysmexecdepth;
 	%if %length(&message.) %then %do;
 		%put ERROR: &message.;
 	%end;
 	%do %while(&depth.>0);
 		%let depth=%eval(&depth.-1);
-		%put ERROR: +&len.>[&depth.] %sysmexecname(&depth.);
-		%let len=&len.-;
+		%put ERROR: [&depth.] %sysmexecname(&depth.);
 	%end;
 	%if "&abort."="1" %then %do;
 		%abort;

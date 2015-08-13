@@ -6,6 +6,3 @@
 %import(OPTION);
 %asserteq(1,%sysmacexist(option));
 
-%import(testprint);
-
-%testprint;
