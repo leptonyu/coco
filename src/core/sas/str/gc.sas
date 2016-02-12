@@ -24,7 +24,7 @@
     %let v=%scan(&g_sas_pool.,&i.,|);
     %do %while("&v."^="");
         %if not %index(&temp_pool.,|&v.|) %then %do;
-            %put NOxTE: clean g_sas_pool_&v.=&&&g_sas_pool_&v..;
+            %put NOTE: clean g_sas_pool_&v.=&&&g_sas_pool_&v..;
             %* delete ;
             %if %symexist(g_sas_pool_&v.) %then %symdel g_sas_pool_&v.;
         %end;

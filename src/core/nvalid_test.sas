@@ -2,6 +2,7 @@
 %asserteq(1, %nvalid(_hello));
 %asserteq(1, %nvalid(sas_lang_x));
 %asserteq(0, %nvalid());
+%asserteq(0, %nvalid( ));
 %asserteq(1, %nvalid(_123456789012345678901234567890_));
 %asserteq(0, %nvalid(_123456789012345678901234567890__));
 %asserteq(0, %nvalid(9ii));

@@ -53,7 +53,7 @@
         px=trim(px)||'|\[[^,]*?(,[^,]+)*?\]';
         px=trim(px)||'/i';
         token=prxparse(px);
-        listtoken=prxparse('/\[[^,]*(,[^,]+)*\]/');
+        listtoken=prxparse('/^\[[^,]*(,[^,]+)*\]$/');
         igtoken=prxparse("/^(%?\*|\'|%.*:)/");
         mtoken=prxparse('/^[_a-z][_0-9a-z]*(\.[_a-z][_0-9a-z]*)?$/i');
         lettoken=prxparse('/^([_a-z][_0-9a-z]*|\$)\s*=$/i');
@@ -222,8 +222,7 @@ method:
 
                             if name='' then
                                 do;
-                                    put 'ERROR: cannot resolve macro ' 
-                                        method[1];
+                                    put 'ERROR: cannot resolve macro ' method[1];
                                     err=1;
                                     goto stop;
                                 end;
@@ -234,16 +233,14 @@ method:
 
                                     do i=2 to mid;
                                         method[i]=dequote(method[i]);
-                                        method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', 
-                                            -1, method[i]);
+                                        method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', -1, method[i]);
                                         put method[i] @;
                                     end;
                                     put  +(-1) ';';
                                     goto endmethod;
                                 end;
-                            else if resolve('%getpath('||trim(name)||')')='' 
-                                then
-                                    do;
+                            else if resolve('%getpath('||trim(name)||')')='' then
+                                do;
                                     put 'ERROR: Macro ' name 'not exist!';
                                     err=1;
                                     goto stop;
@@ -256,8 +253,7 @@ method:
 
                             if bigstatus or item='}' then
                                 do;
-                                    put '    %let ' retrn +(-1) '=%' name +(-1) 
-                                        '(' @;
+                                    put '    %let ' retrn +(-1) '=%' name +(-1) '(' @;
                                 end;
                             else
                                 do;
@@ -269,8 +265,7 @@ method:
                                 if i>2 then
                                     put ',' @;
                                 method[i]=dequote(method[i]);
-                                method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', 
-                                    -1, method[i]);
+                                method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', -1, method[i]);
                                 put method[i] +(-1) @;
                             end;
                             put ');';
@@ -294,8 +289,7 @@ endmethod:
 
                                         if i^=2 and mid^=2 then
                                             do;
-                                                put 'ERROR: Unkown token ' 
-                                                    method[*];
+                                                put 'ERROR: Unkown token ' method[*];
                                                 err=1;
                                                 goto stop;
                                             end;
@@ -304,8 +298,7 @@ endmethod:
                                 else
                                     do;
                                         method[i]=dequote(method[i]);
-                                        method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', 
-                                            -1, method[i]);
+                                        method[i]=prxchange('s/([";'||"'"||'])/%str(%$1)/', -1, method[i]);
                                         put method[i] +(-1) @;
                                     end;
                             end;
@@ -325,9 +318,8 @@ endmethod:
             if mid=1 then
                 do;
 
-                    if not prxmatch(mtoken, trim(item)) and not 
-                        prxmatch(lettoken, trim(item)) and not 
-                        prxmatch(listtoken, trim(item)) then
+                    if not prxmatch(mtoken, trim(item)) and not prxmatch(lettoken, trim(item)) 
+                        and not prxmatch(listtoken, trim(item)) then
                             do;
                             put 'ERROR: Unknown method ' item;
                             err=1;

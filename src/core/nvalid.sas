@@ -7,15 +7,12 @@
 *************************************************/
 
 %macro nvalid(name);
-    %local rc;
-
     %if "&name."="" %then
         %do;
-            %let rc=0;
+            0
         %end;
     %else
         %do;
-            %let rc=%qsysfunc(nvalid(&name.));
+            %qsysfunc(nvalid(&name.))
         %end;
-    &rc.
 %mend;
